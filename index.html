@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Passport Guide BD</title>
+<meta name="description" content="Bangladesh e-passport fee calculator, document checklist and expiry tracker. Works offline.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div>
+      <h1 data-i18n="title">Passport Guide BD</h1>
+      <p class="subtitle" data-i18n="subtitle">Bangladesh e-passport fees, checklist &amp; expiry tracker &mdash; works offline</p>
+    </div>
+    <button id="lang-toggle" class="btn btn-ghost" type="button">Bangla</button>
+  </div>
+</header>
+
+<nav class="tabs wrap" id="tabs" aria-label="Sections">
+  <button type="button" data-tab="calc" id="tab-calc" data-i18n="tabCalc">Fee Calculator</button>
+  <button type="button" data-tab="chart" id="tab-chart" data-i18n="tabChart">Fee Chart</button>
+  <button type="button" data-tab="check" id="tab-check" data-i18n="tabCheck">Checklist</button>
+  <button type="button" data-tab="track" id="tab-track" data-i18n="tabTrack">My Passports</button>
+  <button type="button" data-tab="steps" id="tab-steps" data-i18n="tabSteps">How to Apply</button>
+  <button type="button" data-tab="data" id="tab-data" data-i18n="tabData">Data</button>
+</nav>
+
+<main class="wrap">
+  <!-- Calculator -->
+  <section id="panel-calc" class="panel active" aria-labelledby="tab-calc">
+    <h2 data-i18n="tabCalc">Fee Calculator</h2>
+    <div class="field">
+      <label data-i18n="booklet">Booklet</label>
+      <div class="seg" id="seg-pages" role="group" aria-label="Booklet">
+        <button type="button" data-value="48" data-i18n="pages48">48 pages</button>
+        <button type="button" data-value="64" data-i18n="pages64">64 pages</button>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="validity">Validity</label>
+      <div class="seg" id="seg-years" role="group" aria-label="Validity">
+        <button type="button" data-value="5" data-i18n="years5">5 years</button>
+        <button type="button" data-value="10" data-i18n="years10">10 years</button>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="delivery">Delivery</label>
+      <div class="seg" id="seg-speed" role="group" aria-label="Delivery">
+        <button type="button" data-value="regular" data-i18n="regular">Regular</button>
+        <button type="button" data-value="express" data-i18n="express">Express</button>
+        <button type="button" data-value="super" data-i18n="super">Super Express</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="age-input" data-i18n="age">Your age (optional)</label>
+      <input id="age-input" type="number" min="0" max="120" inputmode="numeric" data-i18n-ph="agePh" placeholder="e.g. 25">
+      <p class="error" id="age-error" hidden></p>
+    </div>
+    <div class="result" aria-live="polite">
+      <div class="result-row"><span data-i18n="fee">Fee</span><strong id="fee-amount">&mdash;</strong></div>
+      <div class="result-row"><span data-i18n="deliveryTime">Delivery time</span><strong id="delivery-result">&mdash;</strong></div>
+    </div>
+    <p class="warn" id="age-warn" hidden></p>
+    <p class="note" data-i18n="vatNote">Fees include 15% VAT, per the Department of Immigration &amp; Passports fee schedule (updated 12 July 2026). Confirm the fee on epassport.gov.bd before paying.</p>
+  </section>
+
+  <!-- Chart -->
+  <section id="panel-chart" class="panel" aria-labelledby="tab-chart">
+    <h2 data-i18n="chartTitle">Full fee chart</h2>
+    <p class="note" data-i18n="chartHint">Tap a row to load it into the calculator.</p>
+    <div class="table-scroll">
+      <table id="chart-table">
+        <thead>
+          <tr>
+            <th data-i18n="thPages">Booklet</th>
+            <th data-i18n="thValidity">Validity</th>
+            <th data-i18n="thDelivery">Delivery</th>
+            <th data-i18n="thFee">Fee</th>
+            <th data-i18n="thTime">Time</th>
+          </tr>
+        </thead>
+        <tbody id="chart-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Checklist -->
+  <section id="panel-check" class="panel" aria-labelledby="tab-check">
+    <h2 data-i18n="tabCheck">Checklist</h2>
+    <div class="field">
+      <label data-i18n="appType">Application type</label>
+      <div class="seg seg-wrap" id="check-types" role="group" aria-label="Application type">
+        <button type="button" data-value="new" data-i18n="typeNew">New</button>
+        <button type="button" data-value="renewal" data-i18n="typeRenewal">Renewal</button>
+        <button type="button" data-value="lost" data-i18n="typeLost">Lost / Damaged</button>
+        <button type="button" data-value="child" data-i18n="typeChild">Child (under 18)</button>
+      </div>
+    </div>
+    <div class="progress-row">
+      <span id="check-progress">0/0 done</span>
+      <div class="progress-track"><div class="progress-bar" id="check-bar"></div></div>
+      <button type="button" class="btn btn-ghost btn-small" id="check-reset" data-i18n="reset">Reset</button>
+    </div>
+    <ul class="checklist" id="checklist-list"></ul>
+  </section>
+
+  <!-- Tracker -->
+  <section id="panel-track" class="panel" aria-labelledby="tab-track">
+    <h2 data-i18n="tabTrack">My Passports</h2>
+    <form id="add-passport" novalidate>
+      <h3 data-i18n="addTitle">Add a passport</h3>
+      <div class="field">
+        <label for="p-label" data-i18n="labelLabel">Label</label>
+        <input id="p-label" type="text" maxlength="60" data-i18n-ph="labelPh" placeholder="e.g. Mine, Amma&#8217;s">
+        <p class="error" id="err-label" data-i18n="errLabel" hidden>Please enter a label.</p>
+      </div>
+      <div class="field">
+        <label for="p-expiry" data-i18n="expiryLabel">Expiry date</label>
+        <input id="p-expiry" type="date">
+        <p class="error" id="err-expiry" data-i18n="errExpiry" hidden>Please enter a valid expiry date.</p>
+      </div>
+      <button type="submit" class="btn btn-primary" data-i18n="addBtn">Add passport</button>
+    </form>
+    <h3 data-i18n="listTitle">Your passports</h3>
+    <p class="note" data-i18n="renewNote">Most countries require at least 6 months of passport validity to travel. Renew when fewer than 180 days are left.</p>
+    <p class="empty" id="tracker-empty" data-i18n="emptyTrack">No passports added yet. Add one to track its expiry.</p>
+    <div id="tracker-list" class="passport-list"></div>
+  </section>
+
+  <!-- Steps -->
+  <section id="panel-steps" class="panel" aria-labelledby="tab-steps">
+    <h2 data-i18n="stepsTitle">How to apply &mdash; 7 steps</h2>
+    <ol class="steps" id="steps-list"></ol>
+    <h3 data-i18n="notesTitle">Good to know</h3>
+    <ul class="notes" id="notes-list"></ul>
+  </section>
+
+  <!-- Data -->
+  <section id="panel-data" class="panel" aria-labelledby="tab-data">
+    <h2 data-i18n="tabData">Data</h2>
+    <p class="note">Your checklist ticks and passports are stored only in this browser (localStorage). Nothing is sent anywhere.</p>
+    <div class="data-actions">
+      <button type="button" class="btn btn-primary" id="export-btn" data-i18n="exportBtn">Export data (JSON)</button>
+      <label class="btn btn-ghost file-label" for="import-file" data-i18n="importBtn">Import data (JSON)</label>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
+    </div>
+    <div class="field erase-box">
+      <label for="erase-input" data-i18n="erasePrompt">Type DELETE to erase all saved data.</label>
+      <div class="erase-row">
+        <input id="erase-input" type="text" autocomplete="off" placeholder="DELETE">
+        <button type="button" class="btn btn-danger" id="erase-btn" data-i18n="eraseBtn">Erase everything</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap footer">
+  <p data-i18n="footer">Unofficial guide. Fees and rules change &mdash; always confirm on the official e-passport portal before paying or travelling.</p>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="js/logic.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
